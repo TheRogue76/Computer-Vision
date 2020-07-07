@@ -47,25 +47,27 @@ for i in range(4):
 dest_points = np.array([
     (0, 0),
     (500, 0),
-    (500, 500),
-    (0, 500),
+    (500, 707),
+    (0, 707),
 ])
 
 H, mask = cv2.findHomography(source_points, dest_points, cv2.RANSAC, 4.0)
 print(f"H:: {H}")
-J_warped = cv2.warpPerspective(I_copy, H, (500, 500))
+J_warped = cv2.warpPerspective(I_copy, H, (500, 707))
 cv2.imshow("1", J_warped)
+cv2.imwrite("output.jpg", J_warped)
 
 G = cv2.cvtColor(J_warped, cv2.COLOR_BGR2GRAY)
 G = np.float32(G)
-window_size = 5
-soble_kernel_size = 3  # kernel size for gradients
+window_size = 13
+soble_kernel_size = 11  # kernel size for gradients
 alpha = 0.04
 Harris = cv2.cornerHarris(G, window_size, soble_kernel_size, alpha)
 Harris = Harris / Harris.max()
 
 C = np.uint8(Harris > 0.01) * 255
 J = G.copy()
-J[C != 0] = [0, 0, 255]
+J[C != 0] = 255
+J[C == 0] = 0
 cv2.imshow('corners', J)
 cv2.waitKey(0)
