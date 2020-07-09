@@ -54,31 +54,31 @@ H, mask = cv2.findHomography(source_points, dest_points, cv2.RANSAC, 4.0)
 print(f"H:: {H}")
 J_warped = cv2.warpPerspective(I_copy, H, (500, 658))
 cv2.imshow("1", J_warped)
-cv2.imwrite("output.jpg", J_warped)
+cv2.imwrite("output/output.jpg", J_warped)
 
 studentNo = J_warped[212:254, 24:362]
 studentNo = np.array_split(studentNo, 8, axis=1)
 for i in range(8):
-    cv2.imshow("student " + str(i), studentNo[i])
+    cv2.imwrite("output/ID"+str(i)+".jpg", studentNo[i])
 
 name = J_warped[269:311, 24:362]
 name = np.array_split(name, 8, axis=1)
 for i in range(8):
-    cv2.imshow("name " + str(i), name[i])
+    cv2.imwrite("output/FN" + str(i) + ".jpg", name[i])
 
 familyName = J_warped[325:367, 24:362]
 familyName = np.array_split(familyName, 8, axis=1)
 for i in range(8):
-    cv2.imshow("family " + str(i), familyName[i])
+    cv2.imwrite("output/LN" + str(i) + ".jpg", familyName[i])
 
 phd = J_warped[394:411, 45:62]
-cv2.imshow("phd", phd)
+cv2.imwrite("output/PHD.jpg", phd)
 
 masters = J_warped[394:411, 139:156]
-cv2.imshow("masters", masters)
+cv2.imwrite("output/MS.jpg", masters)
 
 bachelor = J_warped[394:411, 280:296]
-cv2.imshow("bachelor", bachelor)
+cv2.imwrite("output/BS.jpg", bachelor)
 
 cv2.waitKey()
 cv2.destroyAllWindows()
