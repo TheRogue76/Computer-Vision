@@ -1,8 +1,7 @@
 import numpy as np
-import cv2, PIL
+import cv2
 from cv2 import aruco
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 
 dict_arco = {
     34: 0,
@@ -11,7 +10,7 @@ dict_arco = {
     33: 3,
 }
 
-I_orginal = cv2.imread("examples/scene4.jpg")
+I_orginal = cv2.imread("examples/scene1.jpg")
 
 ##ARUCO finding process
 gray = cv2.cvtColor(I_orginal, cv2.COLOR_BGR2GRAY)
@@ -37,7 +36,7 @@ for i in range(4):
     point = (x, y)
     source_points[corn][0] = x
     source_points[corn][1] = y
-    #cv2.circle(I_copy, point, 10, (0, 0, 0), -1)
+    # cv2.circle(I_copy, point, 10, (0, 0, 0), -1)
 
 ####destination image
 ## dest_points[0] = top left
@@ -47,27 +46,39 @@ for i in range(4):
 dest_points = np.array([
     (0, 0),
     (500, 0),
-    (500, 707),
-    (0, 707),
+    (500, 658),
+    (0, 658),
 ])
 
 H, mask = cv2.findHomography(source_points, dest_points, cv2.RANSAC, 4.0)
 print(f"H:: {H}")
-J_warped = cv2.warpPerspective(I_copy, H, (500, 707))
+J_warped = cv2.warpPerspective(I_copy, H, (500, 658))
 cv2.imshow("1", J_warped)
 cv2.imwrite("output.jpg", J_warped)
 
-G = cv2.cvtColor(J_warped, cv2.COLOR_BGR2GRAY)
-G = np.float32(G)
-window_size = 13
-soble_kernel_size = 11  # kernel size for gradients
-alpha = 0.04
-Harris = cv2.cornerHarris(G, window_size, soble_kernel_size, alpha)
-Harris = Harris / Harris.max()
+studentNo = J_warped[212:254, 24:362]
+studentNo = np.array_split(studentNo, 8, axis=1)
+for i in range(8):
+    cv2.imshow("student " + str(i), studentNo[i])
 
-C = np.uint8(Harris > 0.01) * 255
-J = G.copy()
-J[C != 0] = 255
-J[C == 0] = 0
-cv2.imshow('corners', J)
-cv2.waitKey(0)
+name = J_warped[269:311, 24:362]
+name = np.array_split(name, 8, axis=1)
+for i in range(8):
+    cv2.imshow("name " + str(i), name[i])
+
+familyName = J_warped[325:367, 24:362]
+familyName = np.array_split(familyName, 8, axis=1)
+for i in range(8):
+    cv2.imshow("family " + str(i), familyName[i])
+
+phd = J_warped[394:411, 45:62]
+cv2.imshow("phd", phd)
+
+masters = J_warped[394:411, 139:156]
+cv2.imshow("masters", masters)
+
+bachelor = J_warped[394:411, 280:296]
+cv2.imshow("bachelor", bachelor)
+
+cv2.waitKey()
+cv2.destroyAllWindows()
