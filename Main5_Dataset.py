@@ -70,9 +70,9 @@ dict_arco = {
     32: 3,
 }
 
-s = 32  # size of each cell (pixel)
-wn = 14  # number of cells in row/width
-hn = 21  # number of cells in collumn/height
+size = 32  # size of each cell (pixel)
+with_no = 14  # number of cells in row/width
+height_no = 21  # number of cells in collumn/height
 
 list_items_1 = [
     ["no_0", 10, "۰"],
@@ -120,25 +120,27 @@ list_items_2 = [
     ["no_8", 10, "۸"],
     ["no_9", 10, "۹"]]
 index = -1
-fnames = glob.glob("dataset/raw/*_1*.jpg")
-for image_path in fnames:
-    index = index + 1
-    J_warped = flatten_photo(dict_arco, 448, 672, image_path)
-    cv2.imshow("1", J_warped)
-    cv2.imwrite(f"output/output{index}.jpg", J_warped)
-    cv2.waitKey(10)
-    for row in range(len(list_items_1)):
-        #                   y0:y1        x0:x1
-        y0 = int(row * s)
-        y1 = int(y0 + s)
-        tmp = list_items_1[row][1]
-        x0 = int((-tmp / 2 - 7) * s)
-        x1 = int((tmp / 2 + 7) * s)
-        number_0 = J_warped[y0:y1, x0:x1]
-        number_0 = np.array_split(number_0, tmp, axis=1)
-        for i in range(tmp):
-            cv2.imwrite(
-                f"dataset/processed/{list_items_1[row][0]}_{index}_{i}.jpg", number_0[i])
+fnames_1 = glob.glob("dataset/raw/*_1*.jpg")
+fnames_2 = glob.glob("dataset/raw/*_2*.jpg")
+fs = [fnames_1, fnames_2]
+ls = [list_items_1, list_items_2]
+for fnames, list_items in zip(fs, ls):
+    for image_path in fnames:
+        index = index + 1
+        J_warped = flatten_photo(dict_arco, size*with_no, size*height_no, image_path)
+        cv2.imshow("1", J_warped)
+        cv2.imwrite(f"output/output{index}.jpg", J_warped)
+        cv2.waitKey(10)
+        for row in range(len(list_items)):
+            y0 = int(row * size)
+            y1 = int(y0 + size)
+            tmp = list_items[row][1]
+            x0 = int((-tmp / 2 - 7) * size)
+            x1 = int((tmp / 2 + 7) * size)
+            tmp_arr = J_warped[y0:y1, x0:x1]
+            tmp_arr = np.array_split(tmp_arr, tmp, axis=1)
+            for i in range(tmp):
+                cv2.imwrite(
+                    f"dataset/processed/{list_items[row][0]}_{index}_{i}.jpg", tmp_arr[i])
 
-# cv2.waitKey()
 cv2.destroyAllWindows()
