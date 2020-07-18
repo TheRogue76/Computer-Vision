@@ -32,7 +32,8 @@ def flatten_photo(dict_arco, width, height, image_path):
     corners, ids, rejectedImgPoints = aruco.detectMarkers(
         gray, aruco_dict, parameters=parameters)
     source_points = np.zeros((4, 2), dtype=np.dtype('int32'))
-
+    if len(ids) != 4:
+        return None
     # AURCO matching process
     # source_points[0] = corner: top left
     # source_points[1] = corner: top right
@@ -94,8 +95,8 @@ list_items_1 = [
     ["al_sn", 14, "س"],
     ["al_shn", 14, "ش"],
     ["al_sd", 14, "ص"],
-    ["no_2", 10, "ش"],
-    ["no_3", 10, "ش"]]
+    ["no_2", 10, "۲"],
+    ["no_3", 10, "۳"]]
 
 list_items_2 = [
     ["no_4", 10, "۴"],
@@ -128,9 +129,11 @@ for fnames, list_items in zip(fs, ls):
     for image_path in fnames:
         index = index + 1
         J_warped = flatten_photo(dict_arco, size*with_no, size*height_no, image_path)
-        cv2.imshow("1", J_warped)
-        cv2.imwrite(f"output/output{index}.jpg", J_warped)
-        cv2.waitKey(10)
+        if(J_warped == None):
+            continue
+        # cv2.imshow("1", J_warped)
+        # cv2.imwrite(f"output/output{index}.jpg", J_warped)
+        # cv2.waitKey(10)
         for row in range(len(list_items)):
             y0 = int(row * size)
             y1 = int(y0 + size)
