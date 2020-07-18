@@ -129,7 +129,7 @@ for fnames, list_items in zip(fs, ls):
     for image_path in fnames:
         index = index + 1
         J_warped = flatten_photo(dict_arco, size*with_no, size*height_no, image_path)
-        if(J_warped == None):
+        if J_warped is None:
             continue
         # cv2.imshow("1", J_warped)
         # cv2.imwrite(f"output/output{index}.jpg", J_warped)
