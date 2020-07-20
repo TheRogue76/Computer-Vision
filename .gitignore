@@ -2,3 +2,4 @@
 /output/**
 dataset/*
 *.pyc
+*h5
