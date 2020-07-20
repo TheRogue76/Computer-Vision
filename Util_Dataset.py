@@ -1,0 +1,50 @@
+# ['filename','leter']
+list_dataset_items = [
+    ["no_0", "۰"],
+    ["no_1", "۱"],
+    ["al_al", "ا"],
+    ["al_be", "ب"],
+    ["al_pe", "پ"],
+    ["al_te", "ت"],
+    ["al_sn", "ث"],
+    ["al_jm", "ج"],
+    ["al_ch", "چ"],
+    ["al_hh", "ح"],
+    ["al_kh", "خ"],
+    ["al_dl", "د"],
+    ["al_zl", "ذ"],
+    ["al_rr", "ر"],
+    ["al_zz", "ز"],
+    ["al_jz", "ژ"],
+    ["al_sn", "س"],
+    ["al_shn", "ش"],
+    ["al_sd", "ص"],
+    ["no_2", "۲"],
+    ["no_3", "۳"],
+    ["no_4", "۴"],
+    ["no_5", "۵"],
+    ["al_zd", "ض"],
+    ["al_ta", "ط"],
+    ["al_za", "ظ"],
+    ["al_ay", "ع"],
+    ["al_ghy", "غ"],
+    ["al_fe", "ف"],
+    ["al_gh", "ق"],
+    ["al_kf", "ک"],
+    ["al_gf", "گ"],
+    ["al_lm", "ل"],
+    ["al_mm", "م"],
+    ["al_nn", "ن"],
+    ["al_vv", "و"],
+    ["al_he", "ه"],
+    ["al_ye", "ی"],
+    ["no_6", "۶"],
+    ["no_7", "۷"],
+    ["no_8", "۸"],
+    ["no_9", "۹"]]
+
+def get_char_ds(filename:str):
+    for row in list_dataset_items:
+        if row[0] in str:
+            return row[1]
+    return "X"
