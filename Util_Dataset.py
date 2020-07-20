@@ -42,7 +42,7 @@ list_dataset_items = [
     ["al_nn_", 38, "ن"],
     ["al_vv_", 39, "و"],
     ["al_he_", 40, "ه"],
-    ["al_ye_", 40, "ی"]
+    ["al_ye_", 41, "ی"]
 ]
 list_dataset_items = np.array(list_dataset_items)
 
