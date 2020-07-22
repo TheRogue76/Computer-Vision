@@ -1,5 +1,7 @@
 .vscode/*
+.idea/*
 /output/**
 dataset/*
 *.pyc
 *h5
+*png
