@@ -135,15 +135,24 @@ for fnames, list_items in zip(fs, ls):
         # cv2.imwrite(f"output/output{index}.jpg", J_warped)
         # cv2.waitKey(10)
         for row in range(len(list_items)):
+            tmp = list_items[row][1]
+            
             y0 = int(row * size)
             y1 = int(y0 + size)
-            tmp = list_items[row][1]
-            x0 = int((-tmp / 2 - 7) * size)
-            x1 = int((tmp / 2 + 7) * size)
-            tmp_arr = J_warped[y0:y1, x0:x1]
-            tmp_arr = np.array_split(tmp_arr, tmp, axis=1)
-            for i in range(tmp):
+            
+            y0 = y0+2
+            y1 = y1-2
+            for col in range(tmp):
+                offs =  int(7 - tmp/2)
+                
+                x0 = int((offs + col) * size) 
+                x1 = int(x0 + size)
+                x0 = x0+2
+                x1 = x1-2
+                
+                
+                tmp_arr = J_warped[y0:y1, x0:x1]
                 cv2.imwrite(
-                    f"dataset/processed/{list_items[row][0]}_{index}_{i}.jpg", tmp_arr[i])
+                        f"dataset/processed/{list_items[row][0]}_{index}_{col}.jpg", tmp_arr)
 
 cv2.destroyAllWindows()
