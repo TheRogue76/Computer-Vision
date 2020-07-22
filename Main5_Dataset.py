@@ -1,9 +1,14 @@
 import numpy as np
 import cv2
 import glob
+import os
 from cv2 import aruco
 import matplotlib.pyplot as plt
 
+def ensure_dir(file_path):
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 def flatten_photo(dict_arco, width, height, image_path):
     """flatten phto using aurco dictinary to given size
@@ -150,9 +155,10 @@ for fnames, list_items in zip(fs, ls):
                 x0 = x0+2
                 x1 = x1-2
                 
-                
                 tmp_arr = J_warped[y0:y1, x0:x1]
+                dir = f"dataset/processed/{list_items[row][0]}__/"
+                ensure_dir(dir)
                 cv2.imwrite(
-                        f"dataset/processed/{list_items[row][0]}_{index}_{col}.jpg", tmp_arr)
+                        f"{dir}{index}_{col}.jpg", tmp_arr)
 
 cv2.destroyAllWindows()
