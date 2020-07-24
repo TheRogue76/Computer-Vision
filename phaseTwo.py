@@ -1,40 +1,44 @@
 import warnings
+
 warnings.filterwarnings('ignore')
 import numpy as np
 import cv2
 from cv2 import aruco
-import matplotlib.pyplot as plt
 from keras.layers import Conv2D, MaxPool2D, Flatten, Dense, Input
 from keras.models import Model
-from keras.preprocessing.image import load_img, img_to_array
+from keras.preprocessing.image import img_to_array
 from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
 
-import keras
-import glob
-from tqdm import tqdm
-import os
-import numpy as np
-from matplotlib import pyplot as plt
 
-#model building processes
-def build_model(inputs):
-  x = inputs
+# model building processes
+def build_model(inputs, num_classes):
+    x = inputs
 
-  x = Conv2D(filters=20, kernel_size=(5, 5), padding="same", activation="relu")(x)
-  x = MaxPool2D(pool_size=(2, 2), strides=(2, 2))(x)
+    x = Conv2D(filters=20, kernel_size=(5, 5), padding="same", activation="relu")(x)
+    x = MaxPool2D(pool_size=(2, 2), strides=(2, 2))(x)
 
-  x = Conv2D(filters=50, kernel_size=(5, 5), padding="same", activation="relu")(x)
-  x = MaxPool2D(pool_size=(2, 2), strides=(2, 2))(x) 
+    x = Conv2D(filters=50, kernel_size=(5, 5), padding="same", activation="relu")(x)
+    x = MaxPool2D(pool_size=(2, 2), strides=(2, 2))(x)
 
-  x = Flatten()(x)
-  x = Dense(500, activation="relu")(x)
-  outputs = Dense(num_classes, activation="softmax")(x)
+    x = Flatten()(x)
+    x = Dense(500, activation="relu")(x)
+    outputs = Dense(num_classes, activation="softmax")(x)
 
-  model = Model(inputs, outputs, name="LeNet")
-  model.summary()
-  
-  return model
+    model = Model(inputs, outputs, name="LeNet")
+    model.summary()
+
+    return model
+
+
+def isBoxEmpty(image, group):
+    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    ret, grey = cv2.threshold(grey, 130, 255, cv2.THRESH_BINARY)
+    histg = cv2.calcHist([grey], [0], None, [256], [0, 256])
+    if histg[255] > histg[0]:
+        return True
+    else:
+        return False
+
 
 dict_arco = {
     34: 0,
@@ -89,37 +93,21 @@ J_warped = cv2.warpPerspective(I_copy, H, (500, 658))
 
 studentNo = J_warped[212:254, 24:362]
 studentNo = np.array_split(studentNo, 8, axis=1)
-for i in range(8):
-    cv2.imwrite("output/ID"+str(i)+".jpg", studentNo[i])
 
 name = J_warped[269:311, 24:362]
 name = np.array_split(name, 8, axis=1)
-for i in range(8):
-    cv2.imwrite("output/FN" + str(i) + ".jpg", name[i])
 
-familyName = J_warped[325:367, 24:362]
+familyName = J_warped[327:367, 24:362]
 familyName = np.array_split(familyName, 8, axis=1)
-for i in range(8):
-    cv2.imwrite("output/LN" + str(i) + ".jpg", familyName[i])
-    gray = cv2.cvtColor(familyName[i], cv2.COLOR_BGR2GRAY)
-    ret, gray = cv2.threshold(gray, 130, 255, cv2.THRESH_BINARY)
-    histg = cv2.calcHist([gray], [0], None, [256], [0, 256])
-    if histg[255] > histg[0]:
-        print("empty")
-    else:
-        print("not empty")
 
 phd = J_warped[394:411, 45:62]
-cv2.imwrite("output/PHD.jpg", phd)
 
 masters = J_warped[394:411, 139:156]
-cv2.imwrite("output/MS.jpg", masters)
 
 bachelor = J_warped[394:411, 280:296]
-cv2.imwrite("output/BS.jpg", bachelor)
 
 list_dataset_items = [
-	["no_0_", 0, "۰"],
+    ["no_0_", 0, "۰"],
     ["no_1_", 1, "۱"],
     ["no_2_", 2, "۲"],
     ["no_3_", 3, "۳"],
@@ -163,56 +151,67 @@ list_dataset_items = [
     ["al_ye_", 41, "ی"]
 ]
 list_dataset_items = np.array(list_dataset_items)
-#compile and prepare model
+# compile and prepare model
 input = Input((28, 28, 1))
-model_alp = build_model(input)
-model_num = build_model(input)
+num_classes_no = 10
+num_classes_alp = 32
+model_alp = build_model(input, num_classes_alp)
+model_num = build_model(input, num_classes_no)
 opt = Adam()
 model_alp.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
 model_num.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["acc"])
-#load model from file
+# load model from file
 model_alp.load_weights("model_alp.h5")
 model_num.load_weights("model_no.h5")
 
-#predict student number
+# predict student number
 for i, test in enumerate(studentNo):
-    #prepare image for test (normalize to 0-1, and make batch)
+    # prepare image for test (normalize to 0-1, and make batch)
     image = img_to_array(test) / 255.
     orig_img = image.copy()
     image = np.expand_dims(image, 0)
-    #run prediction
+    # run prediction
     predictions = model_num.predict(image)[0]
     label = np.argmax(predictions)
-    #get predicted label character
+    # get predicted label character
     name_label = list_dataset_items[label][2]
     proba = np.max(predictions)
+    print(name_label, proba)
 
-#predict name
+# predict name
 for i, test in enumerate(name):
-    #prepare image for test (normalize to 0-1, and make batch)
-    image = img_to_array(test) / 255.
-    orig_img = image.copy()
-    image = np.expand_dims(image, 0)
-    #run prediction
-    predictions = model_alp.predict(image)[0]
-    label = np.argmax(predictions)
-    #re-offset labels because working with alphabets
-    label = label+10
-    #get predicted label character
-    name_label = list_dataset_items[label][2]
-    proba = np.max(predictions)
-    
-#predict family name
+    if not isBoxEmpty(test, "name"):
+        # prepare image for test (normalize to 0-1, and make batch)
+        image = img_to_array(test) / 255.
+        orig_img = image.copy()
+        image = np.expand_dims(image, 0)
+        # run prediction
+        predictions = model_alp.predict(image)[0]
+        label = np.argmax(predictions)
+        # re-offset labels because working with alphabets
+        label = label + 10
+        # get predicted label character
+        name_label = list_dataset_items[label][2]
+        proba = np.max(predictions)
+        print(name_label, proba)
+    else:
+        continue
+
+# predict family name
 for i, test in enumerate(familyName):
-    #prepare image for test (normalize to 0-1, and make batch)
-    image = img_to_array(test) / 255.
-    orig_img = image.copy()
-    image = np.expand_dims(image, 0)
-    #run prediction
-    predictions = model_alp.predict(image)[0]
-    label = np.argmax(predictions)
-    #re-offset labels because working with alphabets
-    label = label+10
-    #get predicted label character
-    name_label = list_dataset_items[label][2]
-    proba = np.max(predictions)
+    if not isBoxEmpty(test, "familyName"):
+        # prepare image for test (normalize to 0-1, and make batch)
+        image = img_to_array(test) / 255.
+        orig_img = image.copy()
+        image = np.expand_dims(image, 0)
+        # run prediction
+        predictions = model_alp.predict(image)[0]
+        label = np.argmax(predictions)
+        # re-offset labels because working with alphabets
+        label = label + 10
+        # get predicted label character
+        name_label = list_dataset_items[label][2]
+        proba = np.max(predictions)
+        print(name_label, proba)
+    else:
+        continue
