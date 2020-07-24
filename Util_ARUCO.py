@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 from cv2 import aruco
-import matplotlib.pyplot as plt
 
 dict_aruco_form = {
     34: 0,
@@ -11,14 +10,21 @@ dict_aruco_form = {
 }
 
 dict_form_box = {
-    "student_no": [(24, 212), (362, 254)],
-    "first_name": [(24, 269), (362, 311)],
-    "last_name": [(24, 325), (362, 367)],
+    "student_no": [(26, 216), (362, 252)],
+    "first_name": [(26, 274), (362, 310)],
+    "last_name": [(26, 330), (362, 366)],
+    "phd": [(47, 396), (61, 412)],
+    "mst": [(141, 396), (155, 412)],
+    "bch": [(282, 396), (296, 412)],
 }
 
-studentNo = J_warped[212:254, 24:362]
-name = J_warped[269:311, 24:362]
-familyName = J_warped[325:367, 24:362]
+# old values
+# studentNo = J_warped[212:254, 24:362]
+# name = J_warped[269:311, 24:362]
+# familyName = J_warped[325:367, 24:362]
+# phd = J_warped[394:411, 45:62]
+# masters = J_warped[394:411, 139:156]
+# bachelor = J_warped[394:411, 280:296]
 
 
 def flatten_photo(image_path, dict_aruco_photo, width, height):
@@ -76,10 +82,9 @@ def flatten_photo(image_path, dict_aruco_photo, width, height):
     return warped
 
 
-def flatten_form(image_path, width=500, height=685):
+def flatten_form(image_path, width=500, height=660):
     warped = flatten_photo(image_path, dict_aruco_form, width, height)
     return warped
-    pass
 
 
 def extract_box(image, point_top_left, point_bottom_right, pieces):
@@ -100,8 +105,8 @@ def extract_box(image, point_top_left, point_bottom_right, pieces):
     y_top = point_top_left[1]
     y_bottom = point_bottom_right[1]
     box = image[y_top:y_bottom, x_left:x_right]
-    cut = np.array_split(box, 8, axis=1)
-    pass
+    cut = np.array_split(box, pieces, axis=1)
+    return cut
 
 
 def normalize(image):
@@ -109,31 +114,3 @@ def normalize(image):
     normalizes images histogram
     """
     return cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F) * 255
-
-
-studentNo = J_warped[212:254, 24:362]
-studentNo = np.array_split(studentNo, 8, axis=1)
-for i in range(8):
-    cv2.imwrite("output/ID" + str(i) + ".jpg", studentNo[i])
-
-name = J_warped[269:311, 24:362]
-name = np.array_split(name, 8, axis=1)
-for i in range(8):
-    cv2.imwrite("output/FN" + str(i) + ".jpg", name[i])
-
-familyName = J_warped[325:367, 24:362]
-familyName = np.array_split(familyName, 8, axis=1)
-for i in range(8):
-    cv2.imwrite("output/LN" + str(i) + ".jpg", familyName[i])
-
-phd = J_warped[394:411, 45:62]
-cv2.imwrite("output/PHD.jpg", phd)
-
-masters = J_warped[394:411, 139:156]
-cv2.imwrite("output/MS.jpg", masters)
-
-bachelor = J_warped[394:411, 280:296]
-cv2.imwrite("output/BS.jpg", bachelor)
-
-cv2.waitKey()
-cv2.destroyAllWindows()
