@@ -31,8 +31,7 @@ def build_model(inputs, num_classes):
 
 
 def isBoxEmpty(image, group):
-    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    ret, grey = cv2.threshold(grey, 130, 255, cv2.THRESH_BINARY)
+    ret, grey = cv2.threshold(image, 130, 255, cv2.THRESH_BINARY)
     histg = cv2.calcHist([grey], [0], None, [256], [0, 256])
     if histg[255] > histg[0]:
         return True
@@ -88,17 +87,25 @@ dest_points = np.array([
 ])
 
 H, mask = cv2.findHomography(source_points, dest_points, cv2.RANSAC, 4.0)
-print(f"H:: {H}")
 J_warped = cv2.warpPerspective(I_copy, H, (500, 658))
 
 studentNo = J_warped[212:254, 24:362]
 studentNo = np.array_split(studentNo, 8, axis=1)
+# standardize the student numbers
+for i in range(8):
+    studentNo[i] = cv2.cvtColor(cv2.resize(studentNo[i], (28, 28)), cv2.COLOR_BGR2GRAY)
 
 name = J_warped[269:311, 24:362]
 name = np.array_split(name, 8, axis=1)
+# standardize the student name
+for i in range(8):
+    name[i] = cv2.cvtColor(cv2.resize(name[i], (28, 28)), cv2.COLOR_BGR2GRAY)
 
 familyName = J_warped[327:367, 24:362]
 familyName = np.array_split(familyName, 8, axis=1)
+# standardize the student family name
+for i in range(8):
+    familyName[i] = cv2.cvtColor(cv2.resize(familyName[i], (28, 28)), cv2.COLOR_BGR2GRAY)
 
 phd = J_warped[394:411, 45:62]
 
