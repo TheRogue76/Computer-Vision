@@ -8,6 +8,7 @@ from keras.layers import Conv2D, MaxPool2D, Flatten, Dense, Input
 from keras.models import Model
 from keras.preprocessing.image import img_to_array
 from keras.optimizers import Adam
+import Util_ARUCO as ut
 
 
 # model building processes
@@ -37,81 +38,6 @@ def isBoxEmpty(image, group):
         return True
     else:
         return False
-
-
-dict_arco = {
-    34: 0,
-    35: 1,
-    36: 2,
-    33: 3,
-}
-
-I_orginal = cv2.imread("examples/scene1.jpg")
-
-##ARUCO finding process
-gray = cv2.cvtColor(I_orginal, cv2.COLOR_BGR2GRAY)
-aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
-parameters = aruco.DetectorParameters_create()
-corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
-# shows aurco ids
-I_debug = aruco.drawDetectedMarkers(I_orginal.copy(), corners, ids)
-
-source_points = np.zeros((4, 2), dtype=np.dtype('int32'))
-
-####AURCO matching process
-## source_points[0] = id: 34, croner: top left
-## source_points[1] = id: 35, croner: top right
-## source_points[2] = id: 36, croner: bot right
-## source_points[3] = id: 33, croner: bot left
-I_copy = I_orginal.copy()
-for i in range(4):
-    id = ids[i][0]
-    corn = dict_arco[id]
-    x = corners[i][0][corn][0]
-    y = corners[i][0][corn][1]
-    point = (x, y)
-    source_points[corn][0] = x
-    source_points[corn][1] = y
-    # cv2.circle(I_copy, point, 10, (0, 0, 0), -1)
-
-####destination image
-## dest_points[0] = top left
-## dest_points[1] = top right
-## dest_points[2] = bot right
-## dest_points[3] = bot left
-dest_points = np.array([
-    (0, 0),
-    (500, 0),
-    (500, 658),
-    (0, 658),
-])
-
-H, mask = cv2.findHomography(source_points, dest_points, cv2.RANSAC, 4.0)
-J_warped = cv2.warpPerspective(I_copy, H, (500, 658))
-
-studentNo = J_warped[212:254, 24:362]
-studentNo = np.array_split(studentNo, 8, axis=1)
-# standardize the student numbers
-for i in range(8):
-    studentNo[i] = cv2.cvtColor(cv2.resize(studentNo[i], (28, 28)), cv2.COLOR_BGR2GRAY)
-
-name = J_warped[269:311, 24:362]
-name = np.array_split(name, 8, axis=1)
-# standardize the student name
-for i in range(8):
-    name[i] = cv2.cvtColor(cv2.resize(name[i], (28, 28)), cv2.COLOR_BGR2GRAY)
-
-familyName = J_warped[327:367, 24:362]
-familyName = np.array_split(familyName, 8, axis=1)
-# standardize the student family name
-for i in range(8):
-    familyName[i] = cv2.cvtColor(cv2.resize(familyName[i], (28, 28)), cv2.COLOR_BGR2GRAY)
-
-phd = J_warped[394:411, 45:62]
-
-masters = J_warped[394:411, 139:156]
-
-bachelor = J_warped[394:411, 280:296]
 
 list_dataset_items = [
     ["no_0_", 0, "۰"],
@@ -158,6 +84,22 @@ list_dataset_items = [
     ["al_ye_", 41, "ی"]
 ]
 list_dataset_items = np.array(list_dataset_items)
+
+image_path = "examples/scene1.jpg"
+warped = ut.flatten_form(image_path, return_gray_scale=True)
+student_no = ut.extract_box(warped, ut.dict_form_box["student_no"][0], ut.dict_form_box["student_no"][1], 8)
+first_name = ut.extract_box(warped, ut.dict_form_box["first_name"][0], ut.dict_form_box["first_name"][1], 8)
+last_name = ut.extract_box(warped, ut.dict_form_box["last_name"][0], ut.dict_form_box["last_name"][1], 8)
+bachelor = ut.extract_box(warped, ut.dict_form_box["bch"][0], ut.dict_form_box["bch"][1], 1)[0]
+master = ut.extract_box(warped, ut.dict_form_box["mst"][0], ut.dict_form_box["mst"][1], 1)[0]
+phd = ut.extract_box(warped, ut.dict_form_box["phd"][0], ut.dict_form_box["phd"][1], 1)[0]
+# standardize the images
+for i in range(8):
+    print(student_no[i])
+    student_no[i] = ut.standardize(student_no[i])
+    first_name[i] = ut.standardize(first_name[i])
+    last_name[i] = ut.standardize(last_name[i])
+
 # compile and prepare model
 input = Input((28, 28, 1))
 num_classes_no = 10
@@ -172,7 +114,7 @@ model_alp.load_weights("model_alp.h5")
 model_num.load_weights("model_no.h5")
 
 # predict student number
-for i, test in enumerate(studentNo):
+for i, test in enumerate(student_no):
     # prepare image for test (normalize to 0-1, and make batch)
     image = img_to_array(test) / 255.
     orig_img = image.copy()
@@ -186,7 +128,7 @@ for i, test in enumerate(studentNo):
     print(name_label, proba)
 
 # predict name
-for i, test in enumerate(name):
+for i, test in enumerate(first_name):
     if not isBoxEmpty(test, "name"):
         # prepare image for test (normalize to 0-1, and make batch)
         image = img_to_array(test) / 255.
@@ -205,7 +147,7 @@ for i, test in enumerate(name):
         continue
 
 # predict family name
-for i, test in enumerate(familyName):
+for i, test in enumerate(last_name):
     if not isBoxEmpty(test, "familyName"):
         # prepare image for test (normalize to 0-1, and make batch)
         image = img_to_array(test) / 255.

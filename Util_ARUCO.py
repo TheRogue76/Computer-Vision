@@ -119,3 +119,9 @@ def normalize(image):
     normalizes images histogram
     """
     return cv2.normalize(image, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F) * 255
+
+def standardize(image):
+    """
+    standardize image to (28,28) pixels and grayscale it
+    """
+    return cv2.cvtColor(cv2.resize(image, (28, 28)), cv2.COLOR_BGR2GRAY)
