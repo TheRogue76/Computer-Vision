@@ -124,4 +124,4 @@ def standardize(image):
     """
     standardize image to (28,28) pixels and grayscale it
     """
-    return cv2.cvtColor(cv2.resize(image, (28, 28)), cv2.COLOR_BGR2GRAY)
+    return cv2.resize(image, (28, 28))

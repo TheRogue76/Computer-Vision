@@ -32,12 +32,14 @@ def build_model(inputs, num_classes):
 
 
 def isBoxEmpty(image, group):
-    ret, grey = cv2.threshold(image, 130, 255, cv2.THRESH_BINARY)
-    histg = cv2.calcHist([grey], [0], None, [256], [0, 256])
-    if histg[255] > histg[0]:
-        return True
-    else:
-        return False
+    # ret, grey = cv2.threshold(image, 130, 255, cv2.THRESH_BINARY)
+    # histg = cv2.calcHist([grey], [0], None, [256], [0, 256])
+    # if histg[255] > histg[0]:
+    #     return True
+    # else:
+    #     return False
+    return False
+
 
 list_dataset_items = [
     ["no_0_", 0, "۰"],
@@ -95,10 +97,10 @@ master = ut.extract_box(warped, ut.dict_form_box["mst"][0], ut.dict_form_box["ms
 phd = ut.extract_box(warped, ut.dict_form_box["phd"][0], ut.dict_form_box["phd"][1], 1)[0]
 # standardize the images
 for i in range(8):
-    print(student_no[i])
     student_no[i] = ut.standardize(student_no[i])
     first_name[i] = ut.standardize(first_name[i])
     last_name[i] = ut.standardize(last_name[i])
+    print(isBoxEmpty(last_name[i], "last_name"))
 
 # compile and prepare model
 input = Input((28, 28, 1))
