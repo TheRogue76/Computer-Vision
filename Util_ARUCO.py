@@ -18,6 +18,7 @@ dict_form_box = {
     "bch": [(282, 396), (296, 412)],
 }
 
+
 # old values
 # studentNo = J_warped[212:254, 24:362]
 # name = J_warped[269:311, 24:362]
@@ -27,7 +28,7 @@ dict_form_box = {
 # bachelor = J_warped[394:411, 280:296]
 
 
-def flatten_photo(image_path, dict_aruco_photo, width, height):
+def flatten_photo(image_path, dict_aruco_photo, width, height, return_gray_scale=False):
     """flatten photo using aruco dictionary to given size
     dict_aruco must follow as
     {
@@ -42,6 +43,7 @@ def flatten_photo(image_path, dict_aruco_photo, width, height):
         width (int): width of warped picture
         height (int): height of warped picture
         image_path (string): image to read
+        return_gray_scale (bool): warp and return the gray scale version of image
 
     Returns:
         cv.image: warped image
@@ -75,15 +77,18 @@ def flatten_photo(image_path, dict_aruco_photo, width, height):
             (0, height), ])  # Bot Left
         # calculate Homography and warp image
         H, mask = cv2.findHomography(source_points, dest_points, cv2.RANSAC, 4.0)
-        warped = cv2.warpPerspective(img, H, (width, height))
+        if return_gray_scale:
+            warped = cv2.warpPerspective(gray, H, (width, height))
+        else:
+            warped = cv2.warpPerspective(img, H, (width, height))
     except:
         print(f"ERROR: path:{image_path}")
         return None
     return warped
 
 
-def flatten_form(image_path, width=500, height=660):
-    warped = flatten_photo(image_path, dict_aruco_form, width, height)
+def flatten_form(image_path, width=500, height=660, return_gray_scale=False):
+    warped = flatten_photo(image_path, dict_aruco_form, width, height, return_gray_scale)
     return warped
 
 
@@ -92,7 +97,7 @@ def extract_box(image, point_top_left, point_bottom_right, pieces):
     equal pieces along x axis
 
     Args:
-        image (dict): aruco dictionary
+        image (cv2 Image): aruco dictionary
         point_top_left ((int,int)): tuple of x,y
         point_bottom_right ((int,int)): tuple of x,y
         pieces (int): number of pieces in x-axis
