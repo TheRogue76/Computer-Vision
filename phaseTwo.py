@@ -44,7 +44,6 @@ for i, test in enumerate(student_no):
     name_label = um.list_dataset_items[label][2]
     predictedNumber.append(name_label)
     numberProbability.append(proba)
-print(predictedNumber, numberProbability)
 
 # predict name
 predictedName = []
@@ -58,7 +57,6 @@ for i, test in enumerate(first_name):
         nameProbability.append(proba)
     else:
         continue
-print(list(reversed(predictedName)), list(reversed(nameProbability)))
 
 # predict family name
 predictedFamilyName = []
@@ -72,8 +70,15 @@ for i, test in enumerate(last_name):
         familyNameProbability.append(proba)
     else:
         continue
-print(list(reversed(predictedFamilyName)), list(reversed(familyNameProbability)))
+
 
 options = ["bachelor", "master", "phd"]
 optionsAvg = np.array([np.average(bachelor), np.average(master), np.average(phd)])
+
+print(predictedNumber)
+print(numberProbability)
+print(list(reversed(predictedName)))
+print(list(reversed(nameProbability)))
+print(list(reversed(predictedFamilyName)))
+print(list(reversed(familyNameProbability)))
 print(options[np.argmin(options)])
