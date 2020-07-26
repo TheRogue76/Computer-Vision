@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 import Util_ARUCO as ua
 import Util_Model as um
+from operator import itemgetter
 
 
 def isBoxEmpty(image, group):
@@ -30,34 +31,49 @@ for i in range(8):
     student_no[i] = ua.standardize(student_no[i])
     first_name[i] = ua.standardize(first_name[i])
     last_name[i] = ua.standardize(last_name[i])
-    print(isBoxEmpty(last_name[i], "last_name"))
 
 # compile and prepare model
 model_num = um.load_model("model_no.h5", 10)
 model_alp = um.load_model("model_alp.h5", 32)
 
 # predict student number
+predictedNumber = []
+numberProbability = []
 for i, test in enumerate(student_no):
     label, proba = um.run_predict(model_num, test)
     name_label = um.list_dataset_items[label][2]
-    print(name_label, proba)
+    predictedNumber.append(name_label)
+    numberProbability.append(proba)
+print(predictedNumber, numberProbability)
 
 # predict name
+predictedName = []
+nameProbability = []
 for i, test in enumerate(first_name):
     if not isBoxEmpty(test, "name"):
         label, proba = um.run_predict(model_alp, test)
         label = label + 10
         name_label = um.list_dataset_items[label][2]
-        print(name_label, proba)
+        predictedName.append(name_label)
+        nameProbability.append(proba)
     else:
         continue
+print(list(reversed(predictedName)), list(reversed(nameProbability)))
 
 # predict family name
+predictedFamilyName = []
+familyNameProbability = []
 for i, test in enumerate(last_name):
     if not isBoxEmpty(test, "familyName"):
         label, proba = um.run_predict(model_alp, test)
         label = label + 10
         name_label = um.list_dataset_items[label][2]
-        print(name_label, proba)
+        predictedFamilyName.append(name_label)
+        familyNameProbability.append(proba)
     else:
         continue
+print(list(reversed(predictedFamilyName)), list(reversed(familyNameProbability)))
+
+options = ["bachelor", "master", "phd"]
+optionsAvg = np.array([np.average(bachelor), np.average(master), np.average(phd)])
+print(options[np.argmin(options)])
