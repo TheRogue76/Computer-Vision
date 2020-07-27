@@ -6,7 +6,9 @@ import cv2
 import Util_ARUCO as ua
 import Util_Model as um
 from operator import itemgetter
+import time
 
+current_milli_time = lambda: int(round(time.time() * 1000))
 
 def isBoxEmpty(image, group):
     # ret, grey = cv2.threshold(image, 130, 255, cv2.THRESH_BINARY)
@@ -18,7 +20,8 @@ def isBoxEmpty(image, group):
     return False
 
 
-image_path = "examples/scene1.jpg"
+start = current_milli_time()
+image_path = "examples/a5.jpg"
 warped = ua.flatten_form(image_path, return_gray_scale=True)
 student_no = ua.extract_box(warped, ua.dict_form_box["student_no"][0], ua.dict_form_box["student_no"][1], 8)
 first_name = ua.extract_box(warped, ua.dict_form_box["first_name"][0], ua.dict_form_box["first_name"][1], 8)
@@ -71,7 +74,8 @@ for i, test in enumerate(last_name):
     else:
         continue
 
-
+end = current_milli_time()
+print(f"Time: {end-start}")
 options = ["bachelor", "master", "phd"]
 optionsAvg = np.array([np.average(bachelor), np.average(master), np.average(phd)])
 
