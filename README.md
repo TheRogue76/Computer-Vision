@@ -1,7 +1,7 @@
 # Persian numeral and alphabet recognition
-This python project traines and employs two convolutional neural network for recognizing persian alphabet or numeral characters
+This python project trains and employs two convolutional neural network for recognizing Persian alphabet or numeral characters
 
-creating and training of the convolutional neural network is done using Keras framework
+Creating and training of the convolutional neural network is done using Keras framework
 
 
 ## Content  
@@ -17,17 +17,17 @@ creating and training of the convolutional neural network is done using Keras fr
 ### 1.1 Form extraction <a name="p1.1"></a>
 [Phase one](phaseOne.py) aims to extract predetermined boxes from the given [form](Form_a5.pdf).  
 This process entails detecting and flattening the form from the input image. 
-this is done using 4 Arucos and a perspective transform. both using opencv.
+This is done using 4 Arucos and a perspective transform. Both using OpenCV.
 
 ## 2.Phase Two <a name="p2"></a>
-### 2.1 Dataset preperation <a name="p2.1"></a>
+### 2.1 Dataset preparation <a name="p2.1"></a>
 
 //TODO
 
 ### 2.2 Training <a name="p2.2"></a>
 Using the prepared images, two separate neural networks are [trained](Trainer.ipynb) 
 and their configurtions are strored.  
-After traning, a simple testis done using the test dataset for examining the networks accuracy.
+After traning, a simple test is done using the test dataset for examining the networks accuracy.
 
 ### 2.3 Detection <a name="p2.3"></a>
 [Phase two](phaseTwo.py) employs [Phase one](phaseOne.py) methods 
